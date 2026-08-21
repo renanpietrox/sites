@@ -861,13 +861,13 @@ window.addEventListener("load", function () {
             texto += `${index + 1}. ${item.quantidade}x ${item.nomeBase} - R$ ${subtotalItem.toFixed(2)}\n`;
 
             if (item.adicionaisGratis && item.adicionaisGratis.length > 0) {
-                texto += `🆓 Adicionais grátis: ${item.adicionaisGratis.join(", ")}\n`;
+                texto += `Adicionais grátis: ${item.adicionaisGratis.join(", ")}\n`;
             }
             if (item.coberturas && item.coberturas.length > 0) {
-                texto += `🍫 Cobertura: ${item.coberturas.join(", ")}\n`;
+                texto += `Cobertura: ${item.coberturas.join(", ")}\n`;
             }
             if (item.adicionaisPagos && item.adicionaisPagos.length > 0) {
-                texto += `💰 Adicionais pagos: ${item.adicionaisPagos.join(", ")}\n`;
+                texto += `Adicionais pagos: ${item.adicionaisPagos.join(", ")}\n`;
             }
             texto += "\n";
         });
