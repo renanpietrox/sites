@@ -11,7 +11,6 @@
 </head>
 
 <style>
-
 :root {
     --purple: #4a0e4e;
     --purple-light: #6a1b7a;
@@ -246,15 +245,12 @@ body.has-floating-bar { padding-bottom: 78px; }
 }
 
 /* RESPONSIVIDADE MOBILE */
-
-/* Tablets */
 @media (max-width: 900px) {
     .section-row { flex-direction: column; }
     .section-banner { flex: none; width: 100%; height: auto; aspect-ratio: 16 / 9; }
     .section-banner img { object-fit: contain; }
 }
 
-/* Celulares grandes */
 @media (max-width: 768px) {
     .hero-header { padding: 30px 16px; }
     .brand-title { font-size: 1.8rem; }
@@ -282,7 +278,6 @@ body.has-floating-bar { padding-bottom: 78px; }
     .option-group h4 { font-size: 0.85rem; }
 }
 
-/* Celulares médios/pequenos */
 @media (max-width: 480px) {
     .brand-title { font-size: 1.5rem; }
     .logo { max-width: 260px; }
@@ -296,7 +291,6 @@ body.has-floating-bar { padding-bottom: 78px; }
     .floating-cart-total { font-size: 0.95rem; }
 }
 
-/* Celulares muito pequenos */
 @media (max-width: 360px) {
     .products-grid { grid-template-columns: 1fr; }
     .section-banner { aspect-ratio: 3 / 2; }
@@ -706,7 +700,11 @@ window.addEventListener("load", function () {
             document.querySelectorAll('input[name="cobertura"]:checked').forEach(i => escolhidasCoberturas.push(i.value));
         }
 
-        document.querySelectorAll('input[name="pago"]:checked').forEach(i => escolhidosPagos.push(i.value));
+        /* CORREÇÃO AQUI: Formatando e adicionando o preço junto ao nome do adicional pago */
+        document.querySelectorAll('input[name="pago"]:checked').forEach(i => {
+            const valorFormatado = parseFloat(i.dataset.preco).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            escolhidosPagos.push(`${i.value} (+ ${valorFormatado})`);
+        });
 
         let descricaoCompleta = "";
         if (escolhidosGratis.length > 0) descricaoCompleta += `Grátis: [${escolhidosGratis.join(", ")}] `;
@@ -894,12 +892,12 @@ window.addEventListener("load", function () {
             if (!mesa) { alert("Informe o número da mesa."); return; }
             if (!pagamento) { alert("Selecione a forma de pagamento."); return; }
 
-            textoMensagem += "🍽️ Modalidade: Atendimento no local\n";
+            textoMensagem += "Modalidade: Atendimento no local\n";
             textoMensagem += `👤 Cliente: ${nome}\n`;
-            textoMensagem += `🪑 Mesa: ${mesa}\n\n`;
+            textoMensagem += `Mesa: ${mesa}\n\n`;
             textoMensagem += "🛒 Itens do pedido:\n\n";
             textoMensagem += formatarItensPedido(carrinho);
-            textoMensagem += `💵 Total: ${total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}\n\n`;
+            textoMensagem += `Total: ${total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}\n\n`;
             textoMensagem += `💳 Forma de pagamento: ${pagamento}\n`;
         } else {
             const rua = document.getElementById("ruaCliente")?.value.trim() || "";
@@ -910,15 +908,17 @@ window.addEventListener("load", function () {
             if (!rua || !numero || !bairro) { alert("Preencha o endereço completo."); return; }
             if (!pagamento) { alert("Selecione a forma de pagamento."); return; }
 
-            textoMensagem += "🛵 Modalidade: Entrega\n";
+            textoMensagem += "Modalidade: Entrega\n";
             textoMensagem += `👤 Cliente: ${nome}\n\n`;
             textoMensagem += "🛒 Itens do pedido:\n\n";
             textoMensagem += formatarItensPedido(carrinho);
-            textoMensagem += `💵 Total: ${total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}\n\n`;
+            textoMensagem += `Total: ${total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}\n\n`;
+            
+            /* CORREÇÃO AQUI: Ordem do Endereço de Entrega */
             textoMensagem += "📍 Endereço de entrega:\n";
             textoMensagem += `Rua: ${rua}\n`;
-            textoMensagem += `Bairro: ${bairro}\n`;
             textoMensagem += `Número: ${numero}\n`;
+            textoMensagem += `Bairro: ${bairro}\n`;
 
             if (complemento) { textoMensagem += `Complemento: ${complemento}\n`; }
 
