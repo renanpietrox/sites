@@ -185,6 +185,37 @@ body.has-floating-bar { padding-bottom: 78px; }
 }
 .input-order:focus { outline: none; border-color: var(--purple-light); box-shadow: 0 0 5px rgba(106, 27, 122, 0.2); }
 
+/* ABAS ENTREGA / NO LOCAL */
+.order-mode-label { font-size: 0.85rem; font-weight: 600; color: var(--purple); margin: 4px 0 -2px; }
+.order-mode-tabs {
+    display: flex; gap: 6px; background-color: #f1eff2; padding: 5px;
+    border-radius: 10px; margin-bottom: 2px;
+}
+.order-mode-tab {
+    flex: 1; border: none; background: transparent; color: var(--purple);
+    padding: 12px 10px; border-radius: 8px; font-family: inherit; font-weight: 600;
+    font-size: 0.95rem; cursor: pointer; transition: var(--transition);
+    min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.order-mode-tab:hover { background-color: rgba(74, 14, 78, 0.08); }
+.order-mode-tab.active {
+    background-color: var(--purple); color: var(--white);
+    box-shadow: 0 2px 8px rgba(74, 14, 78, 0.25);
+}
+.order-mode-tab.active:hover { background-color: var(--purple); }
+.order-mode-fields { display: flex; flex-direction: column; gap: 12px; animation: fadeInMode 0.25s ease; }
+@keyframes fadeInMode {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.pickup-info {
+    background-color: #fff9e0; border: 1px solid var(--yellow-dark); color: var(--purple);
+    padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; line-height: 1.4;
+}
+@media (max-width: 480px) {
+    .order-mode-tab { font-size: 0.82rem; padding: 10px 6px; }
+}
+
 .cart-actions { display: flex; gap: 15px; margin-top: 20px; }
 .btn-keep-buying { flex: 1; background-color: var(--blue-action); color: var(--white); padding: 12px; }
 .btn-order { flex: 1; background-color: var(--green-order); color: var(--white); padding: 12px; }
@@ -410,12 +441,32 @@ body.has-floating-bar { padding-bottom: 78px; }
                 </div>
                 
                 <div class="customer-data">
-                    <h3 style="margin: 10px 0 5px; color: var(--purple);">Dados para entrega</h3>
+                    <h3 id="tituloModalidade" style="margin: 10px 0 5px; color: var(--purple);">Entrega</h3>
+
                     <input type="text" id="nomeCliente" placeholder="Seu nome" class="input-order">
-                    <input type="text" id="ruaCliente" placeholder="Rua / Avenida" class="input-order">
-                    <input type="text" id="numeroCliente" placeholder="Número" class="input-order">
-                    <input type="text" id="bairroCliente" placeholder="Bairro" class="input-order">
-                    <input type="text" id="complementoCliente" placeholder="Complemento (opcional)" class="input-order">
+
+                    <p class="order-mode-label">Como deseja receber?</p>
+                    <div class="order-mode-tabs" role="tablist">
+                        <button type="button" id="tabEntrega" class="order-mode-tab active" role="tab" aria-selected="true" onclick="selecionarModalidade('entrega')">
+                            Entrega
+                        </button>
+                        <button type="button" id="tabRetirada" class="order-mode-tab" role="tab" aria-selected="false" onclick="selecionarModalidade('retirada')">
+                            No local
+                        </button>
+                    </div>
+
+                    <div id="camposEntrega" class="order-mode-fields">
+                        <input type="text" id="ruaCliente" placeholder="Rua / Avenida" class="input-order">
+                        <input type="text" id="numeroCliente" placeholder="Número" class="input-order">
+                        <input type="text" id="bairroCliente" placeholder="Bairro" class="input-order">
+                        <input type="text" id="complementoCliente" placeholder="Complemento (opcional)" class="input-order">
+                    </div>
+
+                    <div id="camposRetirada" class="order-mode-fields" style="display:none;">
+                        <input type="text" id="mesaCliente" placeholder="Número da mesa" class="input-order">
+                        <p class="pickup-info">O pedido será entregue diretamente na mesa informada.</p>
+                    </div>
+
                     <select id="formaPagamento" class="input-order">
                         <option value="Pix">PIX</option>
                         <option value="Cartão na Entrega">Cartão</option>
@@ -766,6 +817,40 @@ window.addEventListener("load", function () {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    let modalidadePedido = 'entrega';
+
+    function selecionarModalidade(modo) {
+        modalidadePedido = modo;
+
+        const tabEntrega = document.getElementById("tabEntrega");
+        const tabRetirada = document.getElementById("tabRetirada");
+        const camposEntrega = document.getElementById("camposEntrega");
+        const camposRetirada = document.getElementById("camposRetirada");
+        const titulo = document.getElementById("tituloModalidade");
+
+        if (modo === 'retirada') {
+            tabRetirada.classList.add('active');
+            tabRetirada.setAttribute('aria-selected', 'true');
+            tabEntrega.classList.remove('active');
+            tabEntrega.setAttribute('aria-selected', 'false');
+
+            camposRetirada.style.display = 'flex';
+            camposEntrega.style.display = 'none';
+
+            titulo.textContent = 'No local';
+        } else {
+            tabEntrega.classList.add('active');
+            tabEntrega.setAttribute('aria-selected', 'true');
+            tabRetirada.classList.remove('active');
+            tabRetirada.setAttribute('aria-selected', 'false');
+
+            camposEntrega.style.display = 'flex';
+            camposRetirada.style.display = 'none';
+
+            titulo.textContent = 'Entrega';
+        }
+    }
+
     function enviarWhats() {
         if (carrinho.length === 0) {
             alert("O seu pedido está vazio! Monte um item para prosseguir.");
@@ -773,40 +858,67 @@ window.addEventListener("load", function () {
         }
 
         const nome = document.getElementById("nomeCliente")?.value.trim() || "";
-        const rua = document.getElementById("ruaCliente")?.value.trim() || "";
-        const numero = document.getElementById("numeroCliente")?.value.trim() || "";
-        const bairro = document.getElementById("bairroCliente")?.value.trim() || "";
-        const complemento = document.getElementById("complementoCliente")?.value.trim() || "";
         const pagamento = document.getElementById("formaPagamento")?.value || "";
 
         if (!nome) { alert("Informe seu nome."); return; }
-        if (!rua || !numero || !bairro) { alert("Preencha o endereço completo."); return; }
-        if (!pagamento) { alert("Selecione a forma de pagamento."); return; }
 
-        let textoMensagem = "👑 *IMPÉRIO DO AÇAÍ*\n";
-        textoMensagem += "📋 *NOVO PEDIDO*\n\n";
-        textoMensagem += `👤 *Cliente:* ${nome}\n\n`;
-        textoMensagem += "🛒 *Itens do Pedido:*\n\n";
+        let textoMensagem = "IMPERIO DO ACAI\n";
+        textoMensagem += "NOVO PEDIDO\n\n";
 
-        carrinho.forEach((item, index) => {
-            const subtotalItem = item.precoUnitario * item.quantidade;
-            textoMensagem += `*${index + 1}. ${item.quantidade}x ${item.nomeBase}* - R$ ${subtotalItem.toFixed(2)}\n`;
-            if (item.descricao && item.descricao.trim() !== "") {
-                textoMensagem += `${item.descricao}\n`;
-            }
+        if (modalidadePedido === 'retirada') {
+            const mesa = document.getElementById("mesaCliente")?.value.trim() || "";
+
+            if (!mesa) { alert("Informe o número da mesa."); return; }
+            if (!pagamento) { alert("Selecione a forma de pagamento."); return; }
+
+            textoMensagem += "Modalidade: No local\n\n";
+            textoMensagem += `Cliente: ${nome}\n`;
+            textoMensagem += `Mesa: ${mesa}\n\n`;
+            textoMensagem += "Itens do Pedido:\n\n";
+
+            carrinho.forEach((item, index) => {
+                const subtotalItem = item.precoUnitario * item.quantidade;
+                textoMensagem += `${index + 1}. ${item.quantidade}x ${item.nomeBase} - R$ ${subtotalItem.toFixed(2)}\n`;
+                if (item.descricao && item.descricao.trim() !== "") {
+                    textoMensagem += `${item.descricao}\n`;
+                }
+                textoMensagem += "\n";
+            });
+
+            textoMensagem += `Total: ${total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}\n\n`;
+            textoMensagem += `Pagamento: ${pagamento}\n`;
+        } else {
+            const rua = document.getElementById("ruaCliente")?.value.trim() || "";
+            const numero = document.getElementById("numeroCliente")?.value.trim() || "";
+            const bairro = document.getElementById("bairroCliente")?.value.trim() || "";
+            const complemento = document.getElementById("complementoCliente")?.value.trim() || "";
+
+            if (!rua || !numero || !bairro) { alert("Preencha o endereço completo."); return; }
+            if (!pagamento) { alert("Selecione a forma de pagamento."); return; }
+
+            textoMensagem += "Modalidade: Entrega\n\n";
+            textoMensagem += `Cliente: ${nome}\n\n`;
+            textoMensagem += "Itens do Pedido:\n\n";
+
+            carrinho.forEach((item, index) => {
+                const subtotalItem = item.precoUnitario * item.quantidade;
+                textoMensagem += `${index + 1}. ${item.quantidade}x ${item.nomeBase} - R$ ${subtotalItem.toFixed(2)}\n`;
+                if (item.descricao && item.descricao.trim() !== "") {
+                    textoMensagem += `${item.descricao}\n`;
+                }
+                textoMensagem += "\n";
+            });
+
+            textoMensagem += `Total: ${total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}\n\n`;
+            textoMensagem += "Endereco de Entrega\n";
+            textoMensagem += `${rua}, ${numero}\n`;
+            textoMensagem += `Bairro: ${bairro}\n`;
+
+            if (complemento) { textoMensagem += `Complemento: ${complemento}\n`; }
+
             textoMensagem += "\n";
-        });
-
-        textoMensagem += `💰 *Total:* ${total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}\n\n`;
-        textoMensagem += "📍 *Endereço de Entrega*\n";
-        textoMensagem += `${rua}, ${numero}\n`;
-        textoMensagem += `Bairro: ${bairro}\n`;
-
-        if (complemento) { textoMensagem += `Complemento: ${complemento}\n`; }
-
-        textoMensagem += "\n";
-        textoMensagem += `💳 *Pagamento:* ${pagamento}\n`;
-
+            textoMensagem += `Pagamento: ${pagamento}\n`;
+        }
 
         const numeroAtendimento = "5566996564976";
         const url = `https://wa.me/${numeroAtendimento}?text=${encodeURIComponent(textoMensagem)}`;
