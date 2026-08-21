@@ -717,6 +717,9 @@ window.addEventListener("load", function () {
             id: Date.now() + Math.random(),
             nomeBase: itemAtual.nomeBase,
             descricao: descricaoCompleta.trim(),
+            adicionaisGratis: escolhidosGratis,
+            adicionaisPagos: escolhidosPagos,
+            coberturas: escolhidasCoberturas,
             precoUnitario: itemAtual.subtotal,
             quantidade: 1
         };
@@ -851,6 +854,26 @@ window.addEventListener("load", function () {
         }
     }
 
+    function formatarItensPedido(itens) {
+        let texto = "";
+        itens.forEach((item, index) => {
+            const subtotalItem = item.precoUnitario * item.quantidade;
+            texto += `${index + 1}. ${item.quantidade}x ${item.nomeBase} - R$ ${subtotalItem.toFixed(2)}\n`;
+
+            if (item.adicionaisGratis && item.adicionaisGratis.length > 0) {
+                texto += `🆓 Adicionais grátis: ${item.adicionaisGratis.join(", ")}\n`;
+            }
+            if (item.coberturas && item.coberturas.length > 0) {
+                texto += `🍫 Cobertura: ${item.coberturas.join(", ")}\n`;
+            }
+            if (item.adicionaisPagos && item.adicionaisPagos.length > 0) {
+                texto += `💰 Adicionais pagos: ${item.adicionaisPagos.join(", ")}\n`;
+            }
+            texto += "\n";
+        });
+        return texto;
+    }
+
     function enviarWhats() {
         if (carrinho.length === 0) {
             alert("O seu pedido está vazio! Monte um item para prosseguir.");
@@ -862,8 +885,8 @@ window.addEventListener("load", function () {
 
         if (!nome) { alert("Informe seu nome."); return; }
 
-        let textoMensagem = "IMPERIO DO ACAI\n";
-        textoMensagem += "NOVO PEDIDO\n\n";
+        let textoMensagem = "🍇 Império do Açaí\n";
+        textoMensagem += "📋 Novo pedido recebido\n\n";
 
         if (modalidadePedido === 'retirada') {
             const mesa = document.getElementById("mesaCliente")?.value.trim() || "";
@@ -871,22 +894,13 @@ window.addEventListener("load", function () {
             if (!mesa) { alert("Informe o número da mesa."); return; }
             if (!pagamento) { alert("Selecione a forma de pagamento."); return; }
 
-            textoMensagem += "Modalidade: No local\n\n";
-            textoMensagem += `Cliente: ${nome}\n`;
-            textoMensagem += `Mesa: ${mesa}\n\n`;
-            textoMensagem += "Itens do Pedido:\n\n";
-
-            carrinho.forEach((item, index) => {
-                const subtotalItem = item.precoUnitario * item.quantidade;
-                textoMensagem += `${index + 1}. ${item.quantidade}x ${item.nomeBase} - R$ ${subtotalItem.toFixed(2)}\n`;
-                if (item.descricao && item.descricao.trim() !== "") {
-                    textoMensagem += `${item.descricao}\n`;
-                }
-                textoMensagem += "\n";
-            });
-
-            textoMensagem += `Total: ${total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}\n\n`;
-            textoMensagem += `Pagamento: ${pagamento}\n`;
+            textoMensagem += "🍽️ Modalidade: Atendimento no local\n";
+            textoMensagem += `👤 Cliente: ${nome}\n`;
+            textoMensagem += `🪑 Mesa: ${mesa}\n\n`;
+            textoMensagem += "🛒 Itens do pedido:\n\n";
+            textoMensagem += formatarItensPedido(carrinho);
+            textoMensagem += `💵 Total: ${total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}\n\n`;
+            textoMensagem += `💳 Forma de pagamento: ${pagamento}\n`;
         } else {
             const rua = document.getElementById("ruaCliente")?.value.trim() || "";
             const numero = document.getElementById("numeroCliente")?.value.trim() || "";
@@ -896,28 +910,20 @@ window.addEventListener("load", function () {
             if (!rua || !numero || !bairro) { alert("Preencha o endereço completo."); return; }
             if (!pagamento) { alert("Selecione a forma de pagamento."); return; }
 
-            textoMensagem += "Modalidade: Entrega\n\n";
-            textoMensagem += `Cliente: ${nome}\n\n`;
-            textoMensagem += "Itens do Pedido:\n\n";
-
-            carrinho.forEach((item, index) => {
-                const subtotalItem = item.precoUnitario * item.quantidade;
-                textoMensagem += `${index + 1}. ${item.quantidade}x ${item.nomeBase} - R$ ${subtotalItem.toFixed(2)}\n`;
-                if (item.descricao && item.descricao.trim() !== "") {
-                    textoMensagem += `${item.descricao}\n`;
-                }
-                textoMensagem += "\n";
-            });
-
-            textoMensagem += `Total: ${total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}\n\n`;
-            textoMensagem += "Endereco de Entrega\n";
-            textoMensagem += `${rua}, ${numero}\n`;
+            textoMensagem += "🛵 Modalidade: Entrega\n";
+            textoMensagem += `👤 Cliente: ${nome}\n\n`;
+            textoMensagem += "🛒 Itens do pedido:\n\n";
+            textoMensagem += formatarItensPedido(carrinho);
+            textoMensagem += `💵 Total: ${total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}\n\n`;
+            textoMensagem += "📍 Endereço de entrega:\n";
+            textoMensagem += `Rua: ${rua}\n`;
             textoMensagem += `Bairro: ${bairro}\n`;
+            textoMensagem += `Número: ${numero}\n`;
 
             if (complemento) { textoMensagem += `Complemento: ${complemento}\n`; }
 
             textoMensagem += "\n";
-            textoMensagem += `Pagamento: ${pagamento}\n`;
+            textoMensagem += `💳 Forma de pagamento: ${pagamento}\n`;
         }
 
         const numeroAtendimento = "5566996564976";
